@@ -9,6 +9,12 @@ from ..prompts import (
     generate_report_conclusion,
     get_prompt_by_report_type,
 )
+from ..linkedin_prompts import (
+    generate_report_introduction,
+    generate_draft_titles_prompt,
+    generate_report_conclusion,
+    get_prompt_by_report_type,
+)
 from ..utils.enum import Tone
 
 logger = get_formatted_logger()

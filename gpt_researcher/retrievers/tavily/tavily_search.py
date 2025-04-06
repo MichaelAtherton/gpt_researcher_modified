@@ -54,9 +54,9 @@ class TavilySearch:
         self,
         query: str,
         search_depth: Literal["basic", "advanced"] = "basic",
-        topic: str = "general",
-        days: int = 2,
-        max_results: int = 10,
+        topic: str = "general", # OPTIONS: 'general',  'news'
+        days: int = 2, # How many days back to search
+        max_results: int = 10, # 0 - 20
         include_domains: Sequence[str] = None,
         exclude_domains: Sequence[str] = None,
         include_answer: bool = False,

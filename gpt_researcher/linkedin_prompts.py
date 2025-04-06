@@ -1,5 +1,5 @@
 import warnings
-from datetime import date, datetime, timezone, timedelta
+from datetime import date, datetime, timezone
 
 from .utils.enum import ReportSource, ReportType, Tone
 from typing import List, Dict, Any
@@ -12,15 +12,15 @@ def generate_search_queries_prompt(
     max_iterations: int = 3,
     context: List[Dict[str, Any]] = [],
 ):
-    """Generates the search queries prompt for the given question.
+    """Generates the search queries prompt for LinkedIn post content.
     Args:
-        question (str): The question to generate the search queries prompt for
-        parent_query (str): The main question (only relevant for detailed reports)
+        question (str): The topic to generate search queries for
+        parent_query (str): The main topic (only relevant for detailed reports)
         report_type (str): The report type
         max_iterations (int): The maximum number of search queries to generate
         context (str): Context for better understanding of the task with realtime web information
 
-    Returns: str: The search queries prompt for the given question
+    Returns: str: The search queries prompt for finding LinkedIn-worthy content
     """
 
     if (
@@ -32,15 +32,21 @@ def generate_search_queries_prompt(
         task = question
 
     context_prompt = f"""
-You are a seasoned research assistant tasked with generating search queries to find relevant information for the following task: "{task}".
+You are a social media content researcher tasked with generating search queries to find engaging, shareable content for a LinkedIn post about: "{task}".
 Context: {context}
 
-Use this context to inform and refine your search queries. The context provides real-time web information that can help you generate more specific and relevant queries. Consider any current events, recent developments, or specific details mentioned in the context that could enhance the search queries.
+Use this context to inform and refine your search queries. The context provides real-time web information that can help you generate more specific and relevant queries. Consider any current events, trends, statistics, or business insights that would make compelling LinkedIn content.
 """ if context else ""
 
     dynamic_example = ", ".join([f'"query {i+1}"' for i in range(max_iterations)])
 
-    return f"""Write {max_iterations} google search queries to search online that form an objective opinion from the following task: "{task}"
+    return f"""Write {max_iterations} strategic search queries to find content for a professional LinkedIn post about: "{task}"
+
+Your search queries should aim to find:
+1. Recent statistics, data points, or research findings on the topic
+2. Industry insights or expert opinions
+3. Success stories, case studies, or real-world examples
+4. Trending perspectives or debates in the field
 
 Assume the current date is {datetime.now(timezone.utc).strftime('%B %d, %Y')} if required.
 
@@ -59,76 +65,84 @@ def generate_report_prompt(
     tone=None,
     language="english",
 ):
-    """Generates the report prompt for the given question and research summary.
-    Args: question (str): The question to generate the report prompt for
-            research_summary (str): The research summary to generate the report prompt for
-    Returns: str: The report prompt for the given question and research summary
+    """Generates the LinkedIn post prompt for the given question and research data.
+    Args: question (str): The question to generate LinkedIn posts for
+            context (str): The research data to base the LinkedIn posts on
+    Returns: str: The prompt for generating LinkedIn posts based on research
     """
 
     reference_prompt = ""
     if report_source == ReportSource.Web.value:
         reference_prompt = f"""
-You MUST write all used source urls at the end of the report as references, and make sure to not add duplicated sources, but only one reference for each.
-Every url should be hyperlinked: [url website](url)
-Additionally, you MUST include hyperlinks to the relevant URLs wherever they are referenced in the report: 
-
-eg: Author, A. A. (Year, Month Date). Title of web page. Website Name. [url website](url)
+Include a simplified source reference at the end of each post, such as "Source: [website name](url)" for the most relevant source used.
 """
     else:
         reference_prompt = f"""
-You MUST write all used source document names at the end of the report as references, and make sure to not add duplicated sources, but only one reference for each."
+Include a brief mention of where you got this information, such as "Based on my research from [document name]" for the most relevant source.
 """
 
-    tone_prompt = f"Write the report in a {tone.value} tone." if tone else ""
+    tone_prompt = f"Write the posts in a {tone.value} tone." if tone else "Write the posts in a professional but conversational tone that's engaging and authentic."
 
     return f"""
 Information: "{context}"
 ---
-Using the above information, answer the following query or task: "{question}" in a detailed report --
-The report should focus on the answer to the query, should be well structured, informative, 
-in-depth, and comprehensive, with facts and numbers if available and at least {total_words} words.
-You should strive to write the report as long as you can using all relevant and necessary information provided.
+Using the above information, create 3 different LinkedIn post options about: "{question}"
 
-Please follow all of the following guidelines in your report:
-- You MUST determine your own concrete and valid opinion based on the given information. Do NOT defer to general and meaningless conclusions.
-- You MUST write the report with markdown syntax and {report_format} format.
-- You MUST prioritize the relevance, reliability, and significance of the sources you use. Choose trusted sources over less reliable ones.
-- You must also prioritize new articles over older articles if the source can be trusted.
-- Use in-text citation references in {report_format} format and make it with markdown hyperlink placed at the end of the sentence or paragraph that references them like this: ([in-text citation](url)).
-- Don't forget to add a reference list at the end of the report in {report_format} format and full url links without hyperlinks.
-- {reference_prompt}
-- {tone_prompt}
+Each LinkedIn post should:
+1. Be between 800-1200 characters (approximately 150-225 words) to fit LinkedIn's optimal length
+2. Start with a strong hook to capture attention in the first 2 lines (visible in the feed)
+3. Include one key statistic, insight, or data point from the research (if available)
+4. Have a clear and valuable takeaway for the reader
+5. End with either a thought-provoking question, call-to-action, or invitation for discussion
+6. Include 3-5 relevant hashtags at the end
+7. Have a professional yet conversational tone
+8. Be formatted with line breaks for readability (avoid dense paragraphs)
+9. {reference_prompt}
 
-You MUST write the report in the following language: {language}.
-Please do your best, this is very important to my career.
-Assume that the current date is {date.today()}.
+Structure each post option as:
+POST 1:
+[The complete post content with line breaks and hashtags]
+
+POST 2:
+[The complete post content with line breaks and hashtags]
+
+POST 3:
+[The complete post content with line breaks and hashtags]
+
+{tone_prompt}
+
+You MUST write the posts in the following language: {language}.
+Assume that the current date is {date.today()} and incorporate timely relevance if appropriate.
+Make each post option distinctly different in approach or angle.
 """
 
 def curate_sources(query, sources, max_results=10):
-    return f"""Your goal is to evaluate and curate the provided scraped content for the research task: "{query}" 
-    while prioritizing the inclusion of relevant and high-quality information, especially sources containing statistics, numbers, or concrete data.
+    return f"""Your goal is to evaluate and curate the provided scraped content for creating engaging LinkedIn posts about: "{query}" 
+    while prioritizing content that would be most valuable and shareable on a professional social network.
 
-The final curated list will be used as context for creating a research report, so prioritize:
-- Retaining as much original information as possible, with extra emphasis on sources featuring quantitative data or unique insights
-- Including a wide range of perspectives and insights
-- Filtering out only clearly irrelevant or unusable content
+The final curated list will be used as context for creating LinkedIn posts, so prioritize:
+- Content with compelling statistics, data points, or concrete insights that would grab attention
+- Industry trends, expert opinions, and professional perspectives
+- Success stories, case studies, or real-world examples that illustrate key points
+- Recent and timely information that demonstrates awareness of current developments
+- Content from credible sources that professionals would respect
 
 EVALUATION GUIDELINES:
 1. Assess each source based on:
-   - Relevance: Include sources directly or partially connected to the research query. Err on the side of inclusion.
-   - Credibility: Favor authoritative sources but retain others unless clearly untrustworthy.
-   - Currency: Prefer recent information unless older data is essential or valuable.
-   - Objectivity: Retain sources with bias if they provide a unique or complementary perspective.
-   - Quantitative Value: Give higher priority to sources with statistics, numbers, or other concrete data.
+   - LinkedIn Relevance: Focus on content that would interest professionals in this field
+   - Shareability: Prioritize content with eye-catching statistics or insights
+   - Credibility: Favor sources that would enhance professional reputation
+   - Currency: Strongly prefer recent information unless historical context is essential
+   - Professional Impact: Prioritize content that offers clear value to a professional audience
 2. Source Selection:
-   - Include as many relevant sources as possible, up to {max_results}, focusing on broad coverage and diversity.
-   - Prioritize sources with statistics, numerical data, or verifiable facts.
-   - Overlapping content is acceptable if it adds depth, especially when data is involved.
-   - Exclude sources only if they are entirely irrelevant, severely outdated, or unusable due to poor content quality.
+   - Include diverse perspectives that would generate engagement through discussion
+   - Prioritize sources with concrete data, quotable insights, or compelling examples
+   - Select content that helps position the poster as knowledgeable and insightful
+   - Exclude sources that are overly technical, academic, or wouldn't translate well to social media
 3. Content Retention:
-   - DO NOT rewrite, summarize, or condense any source content.
-   - Retain all usable information, cleaning up only clear garbage or formatting issues.
-   - Keep marginally relevant or incomplete sources if they contain valuable data or insights.
+   - Focus on extracting the most compelling elements from each source
+   - Retain all shareable data points, statistics, and quotable insights
+   - Keep content that tells a story or illustrates a point effectively
 
 SOURCES LIST TO EVALUATE:
 {sources}
@@ -467,157 +481,40 @@ Assume that the current date is {datetime.now(timezone.utc).strftime('%B %d, %Y'
 
 
 def generate_report_conclusion(query: str, report_content: str, language: str = "english", report_format: str = "apa") -> str:
-    """Generates a concluding paragraph for a report based on its content."""
-    return f"""
-Based on the report content:
-
-"{report_content}"
-
-Write a concise, insightful conclusion for a report addressing the question or topic: "{query}".
-
-The conclusion should:
-1. Summarize the key findings without introducing new information
-2. Address the original question or topic directly
-3. Provide closure while remaining thought-provoking
-4. Follow {report_format} formatting guidelines
-5. Be written in {language}
-
-Limit your response to 2-3 paragraphs.
-"""
-
-
-def generate_current_topics_search_queries_prompt(
-    question: str,
-    parent_query: str = "",
-    report_type: str = "",
-    max_iterations: int = 5,
-    context: List[Dict[str, Any]] = [],
-):
     """
-    Generate search queries optimized for finding current information.
-    
+    Generate a concise conclusion summarizing the main findings and implications of a research report.
+
     Args:
-        question (str): The question to generate search queries for
-        parent_query (str): The main question (only relevant for detailed reports)
-        report_type (str): The report type
-        max_iterations (int): The maximum number of search queries to generate
-        context (List[Dict[str, Any]]): Context for better understanding of the task
-        
+        query (str): The research task or question.
+        report_content (str): The content of the research report.
+        language (str): The language in which the conclusion should be written.
+
     Returns:
-        str: The search queries prompt focused on current information
+        str: A concise conclusion summarizing the report's main findings and implications.
     """
-    today = datetime.now(timezone.utc).strftime('%Y-%m-%d')
-    yesterday = (datetime.now(timezone.utc) - timedelta(days=1)).strftime('%Y-%m-%d')
+    prompt = f"""
+    Based on the research report below and research task, please write a concise conclusion that summarizes the main findings and their implications:
     
-    # Format context if available
-    context_prompt = ""
-    if context:
-        context_prompt = f"""
-Context: {context}
-
-Use this context to inform and refine your search queries. Consider any current events, recent developments, 
-or specific details mentioned in the context that could enhance the search queries.
-"""
+    Research task: {query}
     
-    dynamic_example = ", ".join([f'"query {i+1}"' for i in range(max_iterations)])
+    Research Report: {report_content}
+
+    Your conclusion should:
+    1. Recap the main points of the research
+    2. Highlight the most important findings
+    3. Discuss any implications or next steps
+    4. Be approximately 2-3 paragraphs long
     
-    return f"""Write {max_iterations} search queries to find ONLY information from today or yesterday about: "{question}"
+    If there is no "## Conclusion" section title written at the end of the report, please add it to the top of your conclusion. 
+    You must use in-text citation references in {report_format.upper()} format and make it with markdown hyperlink placed at the end of the sentence or paragraph that references them like this: ([in-text citation](url)).
 
-Today's date is {today}.
+    IMPORTANT: The entire conclusion MUST be written in {language} language.
 
-Your queries MUST:
-1. Include date specifiers like "today", "{today}", "last 24 hours", or "recent"
-2. Target news sites, official blogs, and real-time information sources
-3. Use search operators that limit by date when possible (e.g., "after:{yesterday}")
-4. Be diverse to cover different aspects of the topic
-5. Focus on finding the most recent developments
-
-{context_prompt}
-
-You must respond with a list of strings in the following format: [{dynamic_example}].
-The response should contain ONLY the list.
-"""
-
-def generate_current_topics_report_prompt(
-    question: str,
-    context,
-    report_source: str,
-    report_format="default",
-    total_words=1000,
-    tone=None,
-    language="english",
-):
+    Write the conclusion:
     """
-    Generate a report focused on current topics with clear date validation.
-    
-    Args:
-        question (str): The question to generate the report for
-        context: The research context to use for the report
-        report_source (str): Source of the research (web, documents, etc.)
-        report_format (str): Report formatting style
-        total_words (int): Minimum word count
-        tone: The tone to use in writing
-        language (str): Output language
-        
-    Returns:
-        str: The current topics report prompt
-    """
-    today = datetime.now(timezone.utc).strftime('%B %d, %Y')
-    yesterday = (datetime.now(timezone.utc) - timedelta(days=1)).strftime('%B %d, %Y')
-    
-    # Set a specific tone for current topics reporting
-    tone_prompt = ""
-    if tone:
-        if hasattr(tone, 'value'):
-            tone_prompt = f"Write the report in a {tone.value} tone."
-        else:
-            tone_prompt = f"Write the report in a {tone} tone."
-    
-    # Set up reference prompts
-    reference_prompt = ""
-    if report_source == ReportSource.Web.value:
-        reference_prompt = f"""
-You MUST write all used source URLs at the end of the report as references, including their publication dates when available.
-Every URL should be hyperlinked: [url website](url)
-Additionally, you MUST include hyperlinks to the relevant URLs wherever they are referenced in the report.
-"""
-    else:
-        reference_prompt = f"""
-You MUST write all used source document names at the end of the report as references, including their publication dates when available.
-"""
-    
-    return f"""
-Using ONLY the information provided: "{context}"
 
-Create a current topics report about: "{question}"
+    return prompt
 
-Today's date is {today}, yesterday's date was {yesterday}.
-
-Your report MUST:
-1. Highlight ONLY information that appears to be from today or yesterday
-2. Clearly indicate the publication date of each piece of information when available
-3. Organize information from most recent to less recent
-4. Note when information lacks clear dating
-5. Include a "Currency Confidence" section that rates how current each main point is
-6. Include ALL relevant source URLs with publication dates when available
-
-Format your report with these sections:
-1. "Latest Developments" - The most recent and verified information
-2. "Key Insights" - Important information organized by topic
-3. "Sources" - All sources with their publication dates
-4. "Currency Analysis" - Assessment of how current the overall information is
-
-If NO current information (from today or yesterday) was found, explicitly state this 
-and provide the most recent information available with its date.
-
-{tone_prompt}
-{reference_prompt}
-
-Write this report in {language}.
-Aim for approximately {total_words} words.
-Use markdown formatting for better readability.
-Assume that the current date is {today}.
-"""
 
 report_type_mapping = {
     ReportType.ResearchReport.value: generate_report_prompt,
@@ -630,14 +527,6 @@ report_type_mapping = {
 
 
 def get_prompt_by_report_type(report_type):
-    """Maps the report type to the respective prompt function.
-
-    Args:
-        report_type (str): The type of the report.
-
-    Returns:
-        function: The prompt function for the given report type.
-    """
     prompt_by_type = report_type_mapping.get(report_type)
     default_report_type = ReportType.ResearchReport.value
     if not prompt_by_type:
