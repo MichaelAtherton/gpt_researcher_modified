@@ -63,7 +63,9 @@ class ReportGenerator:
 
         report_params = self.research_params.copy()
         report_params["context"] = context
-        report_params["custom_prompt"] = custom_prompt
+        
+        if custom_prompt:
+            report_params["custom_prompt"] = custom_prompt
 
         if self.researcher.report_type == "subtopic_report":
             report_params.update({

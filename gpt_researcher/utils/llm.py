@@ -10,7 +10,7 @@ from langchain.prompts import PromptTemplate
 from gpt_researcher.llm_provider.generic.base import NO_SUPPORT_TEMPERATURE_MODELS, SUPPORT_REASONING_EFFORT_MODELS, ReasoningEfforts
 
 from ..prompts import generate_subtopics_prompt
-from ..linkedin_prompts import generate_subtopics_prompt
+from ..custom_prompts.linkedin_prompts import generate_subtopics_prompt
 from .costs import estimate_llm_cost
 from .validators import Subtopics
 import os

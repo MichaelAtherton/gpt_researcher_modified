@@ -9,7 +9,7 @@ from ..prompts import (
     generate_report_conclusion,
     get_prompt_by_report_type,
 )
-from ..linkedin_prompts import (
+from ..custom_prompts.linkedin_prompts import (
     generate_report_introduction,
     generate_draft_titles_prompt,
     generate_report_conclusion,
@@ -219,21 +219,23 @@ async def generate_report(
     """
     generates the final report
     Args:
-        query:
-        context:
-        agent_role_prompt:
-        report_type:
-        websocket:
-        tone:
-        cfg:
-        main_topic:
-        existing_headers:
-        relevant_written_contents:
-        cost_callback:
+        query: The research query
+        context: The research context/data
+        agent_role_prompt: The role prompt for the agent
+        report_type: The type of report to generate
+        tone: The tone of the report
+        report_source: The source of the report
+        websocket: WebSocket connection for streaming
+        cfg: Configuration
+        main_topic: Main topic for subtopic reports
+        existing_headers: Existing headers for subtopic reports
+        relevant_written_contents: Relevant written contents for subtopic reports
+        cost_callback: Callback for tracking costs
+        custom_prompt: Custom prompt from the user
+        headers: HTTP headers
 
     Returns:
-        report:
-
+        report: The generated report
     """
     generate_prompt = get_prompt_by_report_type(report_type)
     report = ""
