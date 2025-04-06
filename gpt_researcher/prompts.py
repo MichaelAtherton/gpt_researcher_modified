@@ -1,5 +1,5 @@
 import warnings
-from datetime import date, datetime, timezone, timedelta
+from datetime import date, datetime, timezone
 
 from .utils.enum import ReportSource, ReportType, Tone
 from typing import List, Dict, Any
@@ -467,157 +467,40 @@ Assume that the current date is {datetime.now(timezone.utc).strftime('%B %d, %Y'
 
 
 def generate_report_conclusion(query: str, report_content: str, language: str = "english", report_format: str = "apa") -> str:
-    """Generates a concluding paragraph for a report based on its content."""
-    return f"""
-Based on the report content:
-
-"{report_content}"
-
-Write a concise, insightful conclusion for a report addressing the question or topic: "{query}".
-
-The conclusion should:
-1. Summarize the key findings without introducing new information
-2. Address the original question or topic directly
-3. Provide closure while remaining thought-provoking
-4. Follow {report_format} formatting guidelines
-5. Be written in {language}
-
-Limit your response to 2-3 paragraphs.
-"""
-
-
-def generate_current_topics_search_queries_prompt(
-    question: str,
-    parent_query: str = "",
-    report_type: str = "",
-    max_iterations: int = 5,
-    context: List[Dict[str, Any]] = [],
-):
     """
-    Generate search queries optimized for finding current information.
-    
+    Generate a concise conclusion summarizing the main findings and implications of a research report.
+
     Args:
-        question (str): The question to generate search queries for
-        parent_query (str): The main question (only relevant for detailed reports)
-        report_type (str): The report type
-        max_iterations (int): The maximum number of search queries to generate
-        context (List[Dict[str, Any]]): Context for better understanding of the task
-        
+        query (str): The research task or question.
+        report_content (str): The content of the research report.
+        language (str): The language in which the conclusion should be written.
+
     Returns:
-        str: The search queries prompt focused on current information
+        str: A concise conclusion summarizing the report's main findings and implications.
     """
-    today = datetime.now(timezone.utc).strftime('%Y-%m-%d')
-    yesterday = (datetime.now(timezone.utc) - timedelta(days=1)).strftime('%Y-%m-%d')
+    prompt = f"""
+    Based on the research report below and research task, please write a concise conclusion that summarizes the main findings and their implications:
     
-    # Format context if available
-    context_prompt = ""
-    if context:
-        context_prompt = f"""
-Context: {context}
-
-Use this context to inform and refine your search queries. Consider any current events, recent developments, 
-or specific details mentioned in the context that could enhance the search queries.
-"""
+    Research task: {query}
     
-    dynamic_example = ", ".join([f'"query {i+1}"' for i in range(max_iterations)])
+    Research Report: {report_content}
+
+    Your conclusion should:
+    1. Recap the main points of the research
+    2. Highlight the most important findings
+    3. Discuss any implications or next steps
+    4. Be approximately 2-3 paragraphs long
     
-    return f"""Write {max_iterations} search queries to find ONLY information from today or yesterday about: "{question}"
+    If there is no "## Conclusion" section title written at the end of the report, please add it to the top of your conclusion. 
+    You must use in-text citation references in {report_format.upper()} format and make it with markdown hyperlink placed at the end of the sentence or paragraph that references them like this: ([in-text citation](url)).
 
-Today's date is {today}.
+    IMPORTANT: The entire conclusion MUST be written in {language} language.
 
-Your queries MUST:
-1. Include date specifiers like "today", "{today}", "last 24 hours", or "recent"
-2. Target news sites, official blogs, and real-time information sources
-3. Use search operators that limit by date when possible (e.g., "after:{yesterday}")
-4. Be diverse to cover different aspects of the topic
-5. Focus on finding the most recent developments
-
-{context_prompt}
-
-You must respond with a list of strings in the following format: [{dynamic_example}].
-The response should contain ONLY the list.
-"""
-
-def generate_current_topics_report_prompt(
-    question: str,
-    context,
-    report_source: str,
-    report_format="default",
-    total_words=1000,
-    tone=None,
-    language="english",
-):
+    Write the conclusion:
     """
-    Generate a report focused on current topics with clear date validation.
-    
-    Args:
-        question (str): The question to generate the report for
-        context: The research context to use for the report
-        report_source (str): Source of the research (web, documents, etc.)
-        report_format (str): Report formatting style
-        total_words (int): Minimum word count
-        tone: The tone to use in writing
-        language (str): Output language
-        
-    Returns:
-        str: The current topics report prompt
-    """
-    today = datetime.now(timezone.utc).strftime('%B %d, %Y')
-    yesterday = (datetime.now(timezone.utc) - timedelta(days=1)).strftime('%B %d, %Y')
-    
-    # Set a specific tone for current topics reporting
-    tone_prompt = ""
-    if tone:
-        if hasattr(tone, 'value'):
-            tone_prompt = f"Write the report in a {tone.value} tone."
-        else:
-            tone_prompt = f"Write the report in a {tone} tone."
-    
-    # Set up reference prompts
-    reference_prompt = ""
-    if report_source == ReportSource.Web.value:
-        reference_prompt = f"""
-You MUST write all used source URLs at the end of the report as references, including their publication dates when available.
-Every URL should be hyperlinked: [url website](url)
-Additionally, you MUST include hyperlinks to the relevant URLs wherever they are referenced in the report.
-"""
-    else:
-        reference_prompt = f"""
-You MUST write all used source document names at the end of the report as references, including their publication dates when available.
-"""
-    
-    return f"""
-Using ONLY the information provided: "{context}"
 
-Create a current topics report about: "{question}"
+    return prompt
 
-Today's date is {today}, yesterday's date was {yesterday}.
-
-Your report MUST:
-1. Highlight ONLY information that appears to be from today or yesterday
-2. Clearly indicate the publication date of each piece of information when available
-3. Organize information from most recent to less recent
-4. Note when information lacks clear dating
-5. Include a "Currency Confidence" section that rates how current each main point is
-6. Include ALL relevant source URLs with publication dates when available
-
-Format your report with these sections:
-1. "Latest Developments" - The most recent and verified information
-2. "Key Insights" - Important information organized by topic
-3. "Sources" - All sources with their publication dates
-4. "Currency Analysis" - Assessment of how current the overall information is
-
-If NO current information (from today or yesterday) was found, explicitly state this 
-and provide the most recent information available with its date.
-
-{tone_prompt}
-{reference_prompt}
-
-Write this report in {language}.
-Aim for approximately {total_words} words.
-Use markdown formatting for better readability.
-Assume that the current date is {today}.
-"""
 
 report_type_mapping = {
     ReportType.ResearchReport.value: generate_report_prompt,
@@ -630,14 +513,6 @@ report_type_mapping = {
 
 
 def get_prompt_by_report_type(report_type):
-    """Maps the report type to the respective prompt function.
-
-    Args:
-        report_type (str): The type of the report.
-
-    Returns:
-        function: The prompt function for the given report type.
-    """
     prompt_by_type = report_type_mapping.get(report_type)
     default_report_type = ReportType.ResearchReport.value
     if not prompt_by_type:
