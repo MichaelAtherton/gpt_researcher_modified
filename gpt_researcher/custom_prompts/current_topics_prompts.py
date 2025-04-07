@@ -239,7 +239,7 @@ Additionally, include hyperlinks to the relevant URLs wherever they are referenc
 You MUST write all used source document names at the end of the report as references.
 """
 
-    tone_prompt = f"Write the report in a {tone.value} tone." if tone else "Write the report in a concise, executive-friendly tone that focuses on business implications."
+    tone_prompt = f"Write the report in a {tone.value} tone." if tone else "Write the report in a decisive, action-oriented executive tone."
     
     previous_report_comparison = ""
     if previous_report:
@@ -248,62 +248,70 @@ CRITICAL - AVOID DUPLICATION:
 Previous report content is provided below. You MUST NOT repeat information that was already covered in this previous report unless it's necessary for context. Focus exclusively on what is NEW since this report was created.
 
 Previous Report:
----
 {previous_report}
----
+
+In your report, include a specific section called "NEW DEVELOPMENTS" that explicitly highlights what has changed since the previous report.
 """
 
     today = datetime.now(timezone.utc)
     today_str = today.strftime('%B %d, %Y')
 
     return f"""
-# DAILY INTELLIGENCE BRIEFING CREATION INSTRUCTIONS
-
 Information: "{context}"
 ---
-Using ONLY the above information from {today_str}, prepare a DAILY INTELLIGENCE BRIEFING on: "{question}"
+Using the above information from {today_str}, prepare an EXECUTIVE DECISION SUPPORT BRIEFING on: "{question}"
 
 {previous_report_comparison}
 
-## AUDIENCE AND PURPOSE
-This briefing is for a CEO who needs actionable intelligence on recent developments. Your briefing must help them:
-- Quickly understand what's new in the last 24-48 hours
-- Identify competitive threats and opportunities
-- Make informed business decisions
-- Gain advantage over competitors who lack this intelligence
+This briefing is for a CEO who needs to make immediate strategic decisions. The briefing MUST:
 
-## CONTENT REQUIREMENTS
-1. Focus EXCLUSIVELY on NEW information and developments from the LAST 24-48 HOURS
-2. Highlight CHANGES, TRENDS, and EMERGING issues since the last briefing
-3. Provide CLEAR, ACTIONABLE insights that offer competitive advantage
-4. Analyze potential BUSINESS IMPLICATIONS of these developments
-5. Be approximately {total_words} words
+1. EXECUTIVE SUMMARY (Top of Report):
+   - 3-5 bullet points of CRITICAL developments requiring immediate attention
+   - Clear "GO/NO-GO" recommendations for each point
+   - Risk level (High/Medium/Low) for each decision point
 
-## FORMAT REQUIREMENTS
-The briefing MUST include these sections in this order:
+2. For EACH Major Trend/Development:
+   a) COMPETITIVE INTELLIGENCE
+      - Which competitors are already moving on this
+      - Market share impact if we act/don't act
+      - First-mover advantage window
+      - Defensive strategies needed
+   
+   b) FINANCIAL IMPACT
+      - Implementation cost ranges
+      - Expected ROI timeframes
+      - Resource requirements
+      - Risk-adjusted return estimates
+   
+   c) ACTION PLAN
+      - Immediate Actions (Next 30 days)
+      - Strategic Moves (90-day plan)
+      - Success Metrics to Track
+      - Key Performance Indicators (KPIs)
 
-1. EXECUTIVE SUMMARY: 2-3 sentence overview of the most critical new developments
-2. KEY HIGHLIGHTS: 3-5 bullet points of the most significant new information
-3. NEW DEVELOPMENTS: Detailed analysis of what has changed, organized by importance
-4. MARKET INDICATORS: Any relevant metrics, numbers, or quantitative changes (if applicable)
-5. COMPETITIVE IMPLICATIONS: How these changes affect the competitive landscape
-6. ACTIONABLE RECOMMENDATIONS: Specific, concrete actions the CEO should consider
-7. SOURCES: All reference sources in proper format
+3. RISK ANALYSIS
+   - Opportunity cost of delay
+   - Competitive threats
+   - Implementation challenges
+   - Mitigation strategies
 
-## INTELLIGENCE STANDARDS
-- VERIFY contradictory information and clearly note discrepancies
-- PRIORITIZE authoritative and reliable sources
-- SPECIFY levels of certainty for each insight (confirmed, likely, possible, etc.)
-- DISTINGUISH between facts, analysis, and speculation
-- FOCUS on business relevance over general interest
+FORMAT REQUIREMENTS:
+- Create a "DECISION REQUIRED" section for items needing immediate CEO attention
+- Use clear, decisive language focused on actions and outcomes
+- Present information in order of urgency and impact
+- Include specific metrics and timelines
 - {tone_prompt}
+- Write in markdown format and {report_format} citation style
+
+INTELLIGENCE STANDARDS:
+- VERIFY all competitive intelligence claims
+- PRIORITIZE quantifiable data over qualitative assessments
+- NOTE certainty levels for predictions and estimates
+- DISTINGUISH between verified facts and market speculation
 - {reference_prompt}
 
-## FINAL REQUIREMENTS
-- Write in {language}
-- Use markdown format for clear structure
-- Use {report_format} citation style
-- Date this report {today_str}
+You MUST write the report in the following language: {language}.
+Assume that the current date is {today_str}.
 """
 
 # Update the report_type_mapping to include our new report type

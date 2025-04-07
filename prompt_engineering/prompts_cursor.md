@@ -1,5 +1,5 @@
 # 1
-I need you to put your investigative hat on. I have a directory in this ai research project that i need to understand. Here is the directory: /Users/michaelatherton/Documents/condaEnv/AIRL/personal_projects/gpt-researcher/multi_agents
+I need you to put your investigative hat on. I have a directory in this ai research project that i need to understand. Here is the directory: /Users/michaelatherton/Documents/condaEnv/AIRL/personal_projects/gpt-researcher/gpt_researcher
 
 
 Tell me your understanding of this directory and what each of the files do in this dir
@@ -8,8 +8,7 @@ Tell me your understanding of this directory and what each of the files do in th
 # 2
 
 ######
-multi_agents
-######
+# multi_agents
 
 Ok, this is a good start. we need to go a step deeper and identify every prompt that, when edited, will affect the multi_agent behavior. 
 
@@ -41,8 +40,14 @@ Before you start this analysis, give me your understanding of my objectives
 # 3
 now, write this breakdown of all the prompts used in the multi-agent system to the file /Users/michaelatherton/Documents/condaEnv/AIRL/personal_projects/gpt-researcher/prompt_engineering/multi_agent.md
 
-# 4
-now that we've identified the agents and prompt locations, we need to follow this process for the agent system in the /Users/michaelatherton/Documents/condaEnv/AIRL/personal_projects/gpt-researcher/gpt_researcher directory. 
+######
+# gpt_researcher
+
+Now, write this breakdown of all the prompts used in the gpt_researcher system to the file /Users/michaelatherton/Documents/condaEnv/AIRL/personal_projects/gpt-researcher/prompt_engineering/gpt_researcher.py
+
+# 4 
+# Do the same for the other project (OPTIONAL)
+Now that we've identified the agents and prompt locations, we need to follow this process for the agent system in the /Users/michaelatherton/Documents/condaEnv/AIRL/personal_projects/gpt-researcher/gpt_researcher directory. 
 
 
 # 5

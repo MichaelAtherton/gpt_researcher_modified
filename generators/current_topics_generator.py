@@ -112,51 +112,75 @@ def save_to_file(content, topic, directory="outputs/current_topics"):
 async def generate_daily_briefing(query: str, total_words: int = 1000, language: str = "english") -> str:
     """Generate daily intelligence briefing for a given query."""
     try:
-        logger.info(f"Starting daily intelligence briefing generation for: {query}")
+        logger.info(f"Starting executive decision support briefing generation for: {query}")
         
         # Get the previous report for this topic
         previous_report = get_previous_report(query)
         
         # Create previous report awareness section
-        previous_report_section = "## Previous Report Awareness\n"
+        previous_report_section = "## Previous Report Analysis\n"
         if previous_report:
-            previous_report_section += "In creating this briefing, be aware of the previous report on this topic. Focus on providing new or updated information not covered previously, and explicitly note any significant changes or developments since the last report.\n\n"
-            previous_report_content = f"### Content from Previous Report:\n{previous_report}\n\n"
+            previous_report_section += "This briefing builds on previous intelligence, focusing on new developments and their strategic implications. Key changes and action items are highlighted for immediate decision-making.\n\n"
+            previous_report_content = f"### Previous Report Context:\n{previous_report}\n\n"
         else:
-            previous_report_section += "This is the first intelligence briefing on this topic. Establish a comprehensive baseline of current developments that future reports can build upon.\n\n"
+            previous_report_section += "This is the initial strategic briefing on this topic. It establishes baseline metrics and action items for ongoing monitoring.\n\n"
             previous_report_content = ""
 
         custom_prompt = f"""
-# TASK: DAILY INTELLIGENCE BRIEFING
+# TASK: EXECUTIVE DECISION SUPPORT BRIEFING
 
-Generate a comprehensive, executive-level intelligence briefing on: {query}
+Generate a comprehensive, action-oriented strategic briefing on: {query}
 
 {previous_report_section}
 {previous_report_content}
 
-## AUDIENCE
-- C-suite executives and strategic decision-makers
-- Requires actionable, business-relevant insights
-- Values concise, high-impact assessment over general information
+## EXECUTIVE FOCUS
+- Immediate decision points requiring CEO attention
+- Competitive positioning and market dynamics
+- Resource allocation and ROI considerations
+- Risk assessment and mitigation strategies
 
-## FORMAT REQUIREMENTS
-- Total length: approximately {total_words} words
-- Use crisp, direct language optimized for busy executives
-- Include a "Key Takeaways" section at the beginning
-- Organize by theme rather than by source
-- Break information into digestible sections with clear headings
+## REQUIRED SECTIONS
+1. Executive Summary
+   - Critical developments (last 24-48 hours)
+   - GO/NO-GO recommendations
+   - Risk levels for each decision point
+
+2. Competitive Intelligence
+   - Competitor movements and strategies
+   - Market share implications
+   - First-mover opportunities
+   - Defensive requirements
+
+3. Financial Impact Analysis
+   - Implementation costs
+   - ROI projections
+   - Resource requirements
+   - Risk-adjusted returns
+
+4. Action Plans
+   - 30-day immediate actions
+   - 90-day strategic moves
+   - Success metrics
+   - Key Performance Indicators
+
+5. Risk Analysis
+   - Delay costs
+   - Competitive threats
+   - Implementation challenges
+   - Mitigation strategies
 
 ## INTELLIGENCE STANDARDS
-- VERIFY contradictory information and clearly note discrepancies
-- PRIORITIZE authoritative and reliable sources
-- SPECIFY levels of certainty for each insight (confirmed, likely, possible, etc.)
-- DISTINGUISH between facts, analysis, and speculation
-- FOCUS on business relevance over general interest
+- Verify all competitive claims
+- Prioritize quantifiable data
+- Note certainty levels
+- Distinguish facts from speculation
 
-## FINAL REQUIREMENTS
-- Write in {language}
-- Use markdown format for clear structure
-- Date this report {datetime.now().strftime('%B %d, %Y')}
+## FORMAT
+- Total length: approximately {total_words} words
+- Language: {language}
+- Style: Direct, action-oriented executive format
+- Structure: Clear decision points and recommendations
 """
         
         # Create an instance of the researcher and conduct research
@@ -168,27 +192,39 @@ Generate a comprehensive, executive-level intelligence briefing on: {query}
             verbose=True,
         )
         
-        logger.info("Conducting research...")
+        logger.info("Conducting strategic research...")
         await researcher.conduct_research()
         
-        logger.info("Generating daily intelligence briefing...")
+        logger.info("Generating executive decision support briefing...")
         try:
-            # Instead of passing custom_prompt directly to write_report, modify the research context
-            # to include our custom prompt instructions
-            modified_context = researcher.context + "\n\n" + custom_prompt
+            # Modify research context to include competitive intelligence focus
+            modified_context = f"""
+COMPETITIVE INTELLIGENCE FOCUS:
+The following research must be analyzed through a competitive lens, identifying:
+1. Market positioning opportunities
+2. Competitor vulnerabilities
+3. First-mover advantages
+4. Defensive necessities
+
+RESEARCH CONTEXT:
+{researcher.context}
+
+BRIEFING REQUIREMENTS:
+{custom_prompt}
+"""
             
-            # Use write_report without the custom_prompt parameter
+            # Generate the report with enhanced context
             report = await researcher.write_report(ext_context=modified_context)
             
-            logger.info("Daily intelligence briefing generated successfully")
+            logger.info("Executive decision support briefing generated successfully")
             return report
             
         except Exception as e:
-            logger.error(f"Error generating daily intelligence briefing: {str(e)}")
+            logger.error(f"Error generating executive briefing: {str(e)}")
             return f"Error: {str(e)}"
         
     except Exception as e:
-        logger.error(f"Error generating daily intelligence briefing: {str(e)}")
+        logger.error(f"Error in executive briefing generation: {str(e)}")
         return f"Error: {str(e)}"
 
 async def main():
