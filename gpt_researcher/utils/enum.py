@@ -49,3 +49,14 @@ class Tone(Enum):
     Pessimistic = (
         "Pessimistic (focusing on limitations, challenges, or negative outcomes)"
     )
+
+
+class ReportFormat(Enum):
+    Default = "default"
+    Markdown = "markdown"
+    PDF = "pdf"
+    DOCX = "docx"
+    HTML = "html"
+    JSON = "json"
+    CSV = "csv"
+    TXT = "txt"
